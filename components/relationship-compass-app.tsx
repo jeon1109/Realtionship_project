@@ -37,6 +37,22 @@ function newId() {
   return crypto.randomUUID();
 }
 
+function toReadableError(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (error && typeof error === "object") {
+    const maybeError = error as { message?: unknown; details?: unknown; hint?: unknown; code?: unknown };
+    return [maybeError.message, maybeError.details, maybeError.hint, maybeError.code]
+      .filter(Boolean)
+      .map(String)
+      .join(" / ");
+  }
+
+  return String(error);
+}
+
 function MultiSelect({
   options,
   selected,
@@ -531,13 +547,21 @@ function EntryList({ title, children }: { title: string; children: React.ReactNo
 export function RelationshipCompassApp() {
   const [activeTab, setActiveTab] = useState<TabKey>("relationship");
   const [data, setData] = useState<JournalData>(emptyJournalData);
+  const [storageError, setStorageError] = useState("");
 
   useEffect(() => {
     void refresh();
   }, []);
 
   async function refresh() {
-    setData(await journalStore.load());
+    try {
+      setStorageError("");
+      setData(await journalStore.load());
+    } catch (error) {
+      console.error(error);
+      setStorageError(toReadableError(error) || "Supabase storage failed to load.");
+      setData(emptyJournalData);
+    }
   }
 
   const tabs = [
@@ -580,6 +604,16 @@ export function RelationshipCompassApp() {
             );
           })}
         </nav>
+
+        {storageError ? (
+          <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800">
+            <p className="font-semibold">Supabase 연결을 확인해주세요.</p>
+            <p className="mt-1">{storageError}</p>
+            <p className="mt-2 text-red-700">
+              테이블 생성, RLS 정책, Vercel 환경변수, 그리고 dev 서버 재시작 여부를 확인하면 됩니다.
+            </p>
+          </div>
+        ) : null}
 
         {activeTab === "relationship" ? (
           <RelationshipJournal

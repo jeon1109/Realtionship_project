@@ -105,8 +105,9 @@ function RelationshipJournal({
   onSave,
 }: {
   entries: RelationshipEntry[];
-  onSave: (entry: RelationshipEntry) => void;
+  onSave: (entry: RelationshipEntry) => Promise<void> | void;
 }) {
+  const [formError, setFormError] = useState("");
   const [form, setForm] = useState({
     date: today(),
     activity: "",
@@ -118,23 +119,30 @@ function RelationshipJournal({
     memo: "",
   });
 
-  function submit(event: React.FormEvent<HTMLFormElement>) {
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    onSave({
-      id: newId(),
-      createdAt: new Date().toISOString(),
-      ...form,
-    });
-    setForm({
-      date: today(),
-      activity: "",
-      laughedTogether: "잘 모르겠음",
-      feltComfortable: "잘 모르겠음",
-      feltConsidered: "잘 모르겠음",
-      feltAuthentic: "잘 모르겠음",
-      wishToMeetAgain: "",
-      memo: "",
-    });
+    setFormError("");
+
+    try {
+      await onSave({
+        id: newId(),
+        createdAt: new Date().toISOString(),
+        ...form,
+      });
+      setForm({
+        date: today(),
+        activity: "",
+        laughedTogether: "잘 모르겠음",
+        feltComfortable: "잘 모르겠음",
+        feltConsidered: "잘 모르겠음",
+        feltAuthentic: "잘 모르겠음",
+        wishToMeetAgain: "",
+        memo: "",
+      });
+    } catch (error) {
+      console.error(error);
+      setFormError("저장 중 문제가 발생했습니다. Supabase 환경변수와 테이블 권한을 확인해주세요.");
+    }
   }
 
   return (
@@ -144,6 +152,7 @@ function RelationshipJournal({
           title="Relationship Journal"
           subtitle="만남 뒤 남는 몸의 느낌, 마음의 여운, 나다움의 정도를 천천히 적어두는 공간입니다."
         />
+        {formError ? <p className="rounded-md bg-red-50 p-3 text-sm text-red-700">{formError}</p> : null}
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="날짜">
             <Input type="date" value={form.date} onChange={(event) => setForm({ ...form, date: event.target.value })} />
@@ -242,9 +251,10 @@ function HealingJournal({
   onUpdate,
 }: {
   entries: HealingEntry[];
-  onSave: (entry: HealingEntry) => void;
-  onUpdate: (entry: HealingEntry) => void;
+  onSave: (entry: HealingEntry) => Promise<void> | void;
+  onUpdate: (entry: HealingEntry) => Promise<void> | void;
 }) {
+  const [formError, setFormError] = useState("");
   const [form, setForm] = useState({
     date: today(),
     event: "",
@@ -257,25 +267,32 @@ function HealingJournal({
     privateRelease: "",
   });
 
-  function submit(event: React.FormEvent<HTMLFormElement>) {
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    onSave({
-      id: newId(),
-      createdAt: new Date().toISOString(),
-      ...form,
-      revisitDate: addDays(form.date, 3),
-    });
-    setForm({
-      date: today(),
-      event: "",
-      feelings: [],
-      interpretedMeaning: "",
-      otherPossibilities: "",
-      emotionOrValue: "아직 모르겠음",
-      wanted: [],
-      timing: "3일 뒤 다시 보기",
-      privateRelease: "",
-    });
+    setFormError("");
+
+    try {
+      await onSave({
+        id: newId(),
+        createdAt: new Date().toISOString(),
+        ...form,
+        revisitDate: addDays(form.date, 3),
+      });
+      setForm({
+        date: today(),
+        event: "",
+        feelings: [],
+        interpretedMeaning: "",
+        otherPossibilities: "",
+        emotionOrValue: "아직 모르겠음",
+        wanted: [],
+        timing: "3일 뒤 다시 보기",
+        privateRelease: "",
+      });
+    } catch (error) {
+      console.error(error);
+      setFormError("저장 중 문제가 발생했습니다. Supabase 환경변수와 테이블 권한을 확인해주세요.");
+    }
   }
 
   return (
@@ -285,6 +302,7 @@ function HealingJournal({
           title="Healing Journal"
           subtitle="서운함을 바로 결론으로 만들지 않고, 마음이 진정될 자리를 먼저 마련합니다."
         />
+        {formError ? <p className="rounded-md bg-red-50 p-3 text-sm text-red-700">{formError}</p> : null}
         <Field label="날짜">
           <Input type="date" value={form.date} onChange={(event) => setForm({ ...form, date: event.target.value })} />
         </Field>
@@ -394,8 +412,9 @@ function MarriageNotePanel({
   onSave,
 }: {
   notes: MarriageNote[];
-  onSave: (note: MarriageNote) => void;
+  onSave: (note: MarriageNote) => Promise<void> | void;
 }) {
+  const [formError, setFormError] = useState("");
   const usedToday = useMemo(
     () => notes.some((note) => note.date === today()),
     [notes],
@@ -404,18 +423,25 @@ function MarriageNotePanel({
   const [noteText, setNoteText] = useState("");
   const [gentleNextStep, setGentleNextStep] = useState("");
 
-  function submit(event: React.FormEvent<HTMLFormElement>) {
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    onSave({
-      id: newId(),
-      createdAt: new Date().toISOString(),
-      date: today(),
-      topic,
-      notes: noteText,
-      gentleNextStep,
-    });
-    setNoteText("");
-    setGentleNextStep("");
+    setFormError("");
+
+    try {
+      await onSave({
+        id: newId(),
+        createdAt: new Date().toISOString(),
+        date: today(),
+        topic,
+        notes: noteText,
+        gentleNextStep,
+      });
+      setNoteText("");
+      setGentleNextStep("");
+    } catch (error) {
+      console.error(error);
+      setFormError("저장 중 문제가 발생했습니다. Supabase 환경변수와 테이블 권한을 확인해주세요.");
+    }
   }
 
   return (
@@ -425,6 +451,7 @@ function MarriageNotePanel({
           title="Marriage Note"
           subtitle="결혼 이야기를 한 번에 몰아치지 않도록 오늘은 하나의 주제만 조용히 펼쳐봅니다."
         />
+        {formError ? <p className="rounded-md bg-red-50 p-3 text-sm text-red-700">{formError}</p> : null}
         {usedToday ? (
           <div className="rounded-md border border-meadow/30 bg-mist/70 p-4 text-sm leading-6 text-[#465a4d]">
             오늘의 결혼 가치관 주제는 이미 하나 작성했습니다. 더 쓰고 싶다면 기존 노트를 읽으며 생각만 덧붙여보세요.

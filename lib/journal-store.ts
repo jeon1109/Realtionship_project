@@ -2,6 +2,7 @@
 
 import type { HealingEntry, JournalData, MarriageNote, RelationshipEntry } from "@/lib/journal-types";
 import type { JournalRepository } from "@/lib/storage/journal-repository";
+import { supabaseJournalStore } from "@/lib/storage/supabase-journal-store";
 
 const STORAGE_KEY = "relationship-compass:v1";
 
@@ -28,7 +29,7 @@ function writeData(data: JournalData) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-export const journalStore: JournalRepository = {
+export const localJournalStore: JournalRepository = {
   load: readData,
   saveRelationshipEntry(entry: RelationshipEntry) {
     const data = readData();
@@ -59,3 +60,6 @@ export const journalStore: JournalRepository = {
     });
   },
 };
+
+export const journalStore: JournalRepository =
+  process.env.NEXT_PUBLIC_JOURNAL_STORAGE === "supabase" ? supabaseJournalStore : localJournalStore;

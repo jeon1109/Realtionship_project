@@ -19,6 +19,14 @@ Open the Supabase SQL Editor and run the SQL in:
 docs/supabase-schema.sql
 ```
 
+Then, for a private personal MVP where you want the app to save and update records without login, run:
+
+```text
+docs/supabase-personal-access.sql
+```
+
+This allows the browser app to `select`, `insert`, and `update` rows with the Supabase anon key.
+
 The app maps each journal model to real table columns:
 
 - `RelationshipEntry` -> `relationship_entries`
@@ -59,7 +67,7 @@ If Supabase is configured correctly, new journal entries will be saved to Supaba
 
 The current app still has no login. With `NEXT_PUBLIC_JOURNAL_STORAGE=supabase`, data is stored in your Supabase project.
 
-For a private single-user MVP, the simplest setup is to use the schema as-is and keep the app URL private. Do not treat this as secure multi-user storage.
+For a private single-user MVP, the simplest setup is to run `docs/supabase-personal-access.sql` and keep the app URL private. Do not treat this as secure multi-user storage.
 
 Before making the app public, add Supabase Auth and Row Level Security.
 
@@ -89,6 +97,7 @@ with check (auth.uid() = user_id);
 
 - `.env.example`: documents required environment variables.
 - `docs/supabase-schema.sql`: SQL schema for the mapped Supabase tables.
+- `docs/supabase-personal-access.sql`: personal-use access settings for read/write/update without login.
 - `lib/supabase/client.ts`: creates a browser Supabase client when env vars are present.
 - `lib/storage/journal-repository.ts`: repository contract shared by local and Supabase storage.
 - `lib/storage/supabase-journal-store.ts`: Supabase adapter with explicit column mapping.

@@ -506,11 +506,11 @@ export function RelationshipCompassApp() {
   const [data, setData] = useState<JournalData>(emptyJournalData);
 
   useEffect(() => {
-    setData(journalStore.load());
+    void refresh();
   }, []);
 
-  function refresh() {
-    setData(journalStore.load());
+  async function refresh() {
+    setData(await journalStore.load());
   }
 
   const tabs = [
@@ -557,31 +557,31 @@ export function RelationshipCompassApp() {
         {activeTab === "relationship" ? (
           <RelationshipJournal
             entries={data.relationshipEntries}
-            onSave={(entry) => {
-              journalStore.saveRelationshipEntry(entry);
-              refresh();
+            onSave={async (entry) => {
+              await journalStore.saveRelationshipEntry(entry);
+              await refresh();
             }}
           />
         ) : null}
         {activeTab === "healing" ? (
           <HealingJournal
             entries={data.healingEntries}
-            onSave={(entry) => {
-              journalStore.saveHealingEntry(entry);
-              refresh();
+            onSave={async (entry) => {
+              await journalStore.saveHealingEntry(entry);
+              await refresh();
             }}
-            onUpdate={(entry) => {
-              journalStore.updateHealingEntry(entry);
-              refresh();
+            onUpdate={async (entry) => {
+              await journalStore.updateHealingEntry(entry);
+              await refresh();
             }}
           />
         ) : null}
         {activeTab === "marriage" ? (
           <MarriageNotePanel
             notes={data.marriageNotes}
-            onSave={(note) => {
-              journalStore.saveMarriageNote(note);
-              refresh();
+            onSave={async (note) => {
+              await journalStore.saveMarriageNote(note);
+              await refresh();
             }}
           />
         ) : null}

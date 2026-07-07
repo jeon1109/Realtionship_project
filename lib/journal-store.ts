@@ -1,6 +1,7 @@
 "use client";
 
 import type { HealingEntry, JournalData, MarriageNote, RelationshipEntry } from "@/lib/journal-types";
+import type { JournalRepository } from "@/lib/storage/journal-repository";
 
 const STORAGE_KEY = "relationship-compass:v1";
 
@@ -27,7 +28,7 @@ function writeData(data: JournalData) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-export const journalStore = {
+export const journalStore: JournalRepository = {
   load: readData,
   saveRelationshipEntry(entry: RelationshipEntry) {
     const data = readData();
